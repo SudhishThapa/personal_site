@@ -1,32 +1,26 @@
-
 {% extends 'base.html' %}
-
 {% block content %}
-<section class="hero">
-  <h1>Welcome to my learning hub</h1>
-  <p>Explore posts on Basketball, Music, Japanese, Finance, and General Learning.</p>
-</section>
-
-<section>
-  <div class="grid">
-    {% for s in sections %}
-      <div class="card">
-        <h3>
-          <a href="{{ url_for('section', slug=s['slug']) }}">{{ s['name'] }}</a>
-        </h3>
-
-        <ul>
-          {% for p in latest_by_section[s['slug']] %}
-            <li>
-              <a href="{{ url_for('post_view', post_id=p['id']) }}">{{ p['title'] }}</a>
-              <small> · {{ p['created_at'][:10] }}</small>
-            </li>
-          {% else %}
-            <li><em>No posts yet.</em></li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endfor %}
-  </div>
-</section>
+  <section class=\"hero\">
+    <h1>Welcome to my learning hub</h1>
+    <p>Explore posts on Basketball, Music, Japanese, Finance, and General Learning.</p>
+  </section>
+  <section>
+    <div class=\"grid\">
+      {% for s in sections %}
+        <div class=\"card\">
+          <h3><a href=\"{{ url_for('section', slug=s['slug']) }}\">{{ s['name'] }}</a></h3>
+          <ul>
+            {% for p in latest_by_section[s['slug']] %}
+              <li>
+                <a href=\"{{ url_for('post_view', post_id=p['id']) }}\">{{ p['title'] }}</a>
+                <small> · {{ p['created_at'][:10] }}</small>
+              </li>
+            {% else %}
+              <li><em>No posts yet.</em></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
 {% endblock %}

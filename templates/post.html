@@ -1,125 +1,13 @@
-
 {% extends 'base.html' %}
-
 {% block title %}{{ post['title'] }} · {{ post['section_name'] }}{% endblock %}
-
 {% block content %}
-<article class="post">
-  <a class="breadcrumb" href="{{ url_for('section', slug=post['section_slug']) }}">
-    ← Back to {{ post['section_name'] }}
-  </a>
-
-  <h1>{{ post['title'] }}</h1>
-  <p class="meta">Published: {{ post['created_at'][:10] }}</p>
-
-  {# ---- Multiple images (gallery) ---- #}
-  {% if post['image_paths'] and post['image_paths']|length > 0 %}
-    <div class="gallery" id="post-gallery">
-      {% for img in post['image_paths'] %}
-        <!-- Wrap thumbnail in a button; data-full holds the large image URL -->
-        <button class="gallery-item" type="button"
-                aria-label="Open image {{ loop.index }}"
-                data-full="{{ url_for('uploaded_file', filename=img) }}">
-          <img
-            src="{{ url_for('uploaded_file', filename=img) }}"
-            alt="{{ post['title'] }} — image {{ loop.index }}"
-            class="post-image"
-            loading="lazy"
-          >
-        </button>
-      {% endfor %}
-    </div>
-
-  {# ---- Fallback: single image ---- #}
-  {% elif post['image_path'] %}
-    <div class="gallery" id="post-gallery">
-      <button class="gallery-item" type="button"
-              aria-label="Open image"
-              data-full="{{ url_for('uploaded_file', filename=post['image_path']) }}">
-        <img
-          src="{{ url_for('uploaded_file', filename=post['image_path']) }}"
-          alt="{{ post['title'] }}"
-          class="post-image"
-          loading="lazy"
-        >
-      </button>
-    </div>
-  {% endif %}
-
-  <div class="post-body">
-    {{ post['body']|replace('\n', '<br>')|safe }}
-  </div>
-</article>
-
-<!-- Lightbox modal -->
-<div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-label="Image viewer">
-  <button class="lightbox-close" type="button" aria-label="Close">✕</button>
-  <img id="lightbox-img" alt="Full-size image">
-  <button class="lightbox-prev" type="button" aria-label="Previous image">‹</button>
-  <button class="lightbox-next" type="button" aria-label="Next image">›</button>
-</div>
-
-<script>
-  (function () {
-    const galleryItems = Array.from(document.querySelectorAll('#post-gallery .gallery-item'));
-    const lb = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lightbox-img');
-    const btnClose = lb.querySelector('.lightbox-close');
-    const btnPrev = lb.querySelector('.lightbox-prev');
-    const btnNext = lb.querySelector('.lightbox-next');
-
-    let currentIndex = -1;
-
-    function openLightbox(index) {
-      currentIndex = index;
-      lbImg.src = galleryItems[currentIndex].dataset.full;
-      lb.classList.add('open');
-      lb.setAttribute('aria-hidden', 'false');
-      btnClose.focus();
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-      lb.classList.remove('open');
-      lb.setAttribute('aria-hidden', 'true');
-      lbImg.src = '';
-      document.body.style.overflow = '';
-    }
-
-    function showPrev() {
-      if (galleryItems.length === 0) return;
-      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
-      lbImg.src = galleryItems[currentIndex].dataset.full;
-    }
-
-    function showNext() {
-      if (galleryItems.length === 0) return;
-      currentIndex = (currentIndex + 1) % galleryItems.length;
-      lbImg.src = galleryItems[currentIndex].dataset.full;
-    }
-
-    // Wire up thumbnail clicks
-    galleryItems.forEach((btn, idx) => {
-      btn.addEventListener('click', () => openLightbox(idx));
-    });
-
-    // Controls
-    btnClose.addEventListener('click', closeLightbox);
-    btnPrev.addEventListener('click', showPrev);
-    btnNext.addEventListener('click', showNext);
-
-    // Click on backdrop closes
-    lb.addEventListener('click', (e) => {
-      if (e.target === lb) closeLightbox();
-    });
-
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-      if (!lb.classList.contains('open')) return;
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') showPrev();
-      if (e.key === 'ArrowRight') showNext();
-    });
-  })();
-</script>
+  <article class=\"post\">
+    <a class=\"breadcrumb\" href=\"{{ url_for('section', slug=post['section_slug']) }}\">← Back to {{ post['section_name'] }}</a>
+    <h1>{{ post['title'] }}</h1>
+    <p class=\"meta\">Published: {{ post['created_at'][:10] }}</p>
+    {% if post['image_path'] %}
+      <img src=\"{{ url_for('static', filename=post['image_path']) }}\" alt=\"{{ post['title'] }}\" class=\"post-image\"/>
+    {% endif %}
+    <div class=\"post-body\">{{ post['body']|replace('\n', '<br>')|safe }}</div>
+  </article>
 {% endblock %}

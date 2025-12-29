@@ -1,14 +1,11 @@
-
 {% extends 'base.html' %}
 {% block title %}Admin Login{% endblock %}
 {% block content %}
   <h1>Admin Login</h1>
-
-  <!-- This form uses POST to send the password securely -->
-  <form method="post" class="form">
+  <form method=\"post\" class=\"form\">
     <label>Password
-      <input type="password" name="password" required>
+      <input type=\"password\" name=\"password\" required>
     </label>
-    <button type="submit">Login</button>
+    <button type=\"submit\">Login</button>
   </form>
 {% endblock %}
