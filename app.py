@@ -154,13 +154,12 @@ def get_sections():
     return sections
 
 
-# ===== Initialize DB when the app handles its first request (works for Gunicorn & local) =====
-@app.before_first_request
-def _init_db_once():
-    try:
+# ===== Initialize DB at startup (Flask 3.x & Gunicorn safe) =====
+try:
+    with app.app_context():
         init_db()
-    except Exception as e:
-        print(f"DB init failed: {e}")
+except Exception as e:
+    print(f"DB init failed: {e}")
 
 
 # ===== Routes =====
@@ -453,5 +452,6 @@ def uploaded_file(filename):
 
 # Local dev entrypoint (Render uses Gunicorn via Procfile)
 if __name__ == "__main__":
+    # For local dev (safe to call; CREATE TABLE IF NOT EXISTS is idempotent)
     init_db()
     app.run(debug=True, host="127.0.0.1", port=5000)
