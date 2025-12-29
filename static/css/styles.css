@@ -1,0 +1,327 @@
+
+/* ===== Theme variables ===== */
+:root {
+  --bg: #e8ecf3;        /* soft bluish-gray background */
+  --surface: #ffffff;    /* card/section background */
+  --text: #111827;       /* dark slate text for readability */
+  --muted: #6b7280;      /* muted text (descriptions, meta) */
+  --accent: #2253ea;     /* accent color for links/buttons */
+}
+
+/* ===== Base reset & typography ===== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.brand { font-weight: 700; }
+
+/* ===== Header / Navbar ===== */
+.site-header {
+  background: #0f1b34;           /* dark navy header */
+  color: #ffffff;                /* base text color inside header */
+  border-bottom: 1px solid #2b3a55;
+}
+.site-header .container { padding: 0.75rem 1rem; }
+
+.nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.spacer { flex: 1; }
+
+/* Header links override */
+.site-header a,
+.site-header .brand a,
+.site-header .nav a {
+  color: #ffffff;              /* white links in header */
+  text-decoration: none;
+  font-weight: 600;
+}
+.site-header a:visited {
+  color: #ffffff;
+}
+.site-header a:hover,
+.site-header a:focus {
+  color: #e6edf5;              /* lighter hover */
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+/* ===== Hero / Headings ===== */
+.hero h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  color: #0f172a;
+}
+.hero p {
+  margin: 0 0 1rem 0;
+  color: var(--muted);
+}
+
+/* ===== Grid & Card styles ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card,
+.post,
+.posts article,
+.section-card {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.card h2, .card h3,
+.post h1, .post h2, .post h3,
+.posts h2 {
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+/* ===== Post meta & body ===== */
+.meta { color: var(--muted); }
+.post-body { color: var(--text); }
+
+/* ===== Links (global) ===== */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:visited {
+  color: var(--accent);
+}
+a:hover, a:focus {
+  color: #1d3fd6;
+  text-decoration: underline;
+}
+a:active {
+  color: #1834b8;
+}
+
+/* Breadcrumb link */
+.breadcrumb {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+.breadcrumb:hover { color: #1d3fd6; text-decoration: underline; }
+
+/* ===== Forms ===== */
+.form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #c7cdd7;
+  background: #f8fafc;
+  color: var(--text);
+}
+textarea { min-height: 160px; }
+button, .btn {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: #e6edf5;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+/* ===== Flash messages ===== */
+.flashes { list-style: none; padding: 0; margin: 0 0 1rem 0; }
+.flash { padding: 0.5rem 0.75rem; border-radius: 6px; margin: 0.5rem 0; }
+.flash.success { background: #d1fae5; color: #065f46; }
+.flash.error   { background: #fee2e2; color: #7f1d1d; }
+.flash.warning { background: #fef3c7; color: #78350f; }
+
+/* ===== Images in posts ===== */
+.post-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  margin: 0.5rem 0;
+}
+
+/* ===== Post page gallery (kept from Option A) ===== */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0.5rem 0 1rem 0;
+  align-items: flex-start;
+}
+
+/* Fixed-size thumbnails for the post page gallery */
+.gallery .post-image {
+  width: 160px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  margin: 0; /* spacing is handled by .gallery gap */
+}
+
+/* Slightly smaller on very small screens */
+@media (max-width: 480px) {
+  .gallery .post-image {
+    width: 130px;
+    height: 90px;
+  }
+}
+
+/* ===== Section page: Option B mini gallery preview ===== */
+
+/* Layout for each post card in the section listing:
+   thumbnails on the left, text on the right (stacks on mobile) */
+.posts .post {
+  display: grid;
+  grid-template-columns: 260px 1fr; /* thumbnail strip + content */
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .posts .post {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
+}
+
+/* Horizontal strip of up to 3 small thumbnails */
+.mini-gallery {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 8px;
+}
+
+/* Tiny thumbnails for the section preview */
+.mini-thumb {
+  width: 110px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  display: block;
+}
+
+/* Fallback single thumbnail (if only image_path is present) */
+.post-thumb {
+  width: 180px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  display: block;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  border-top: 1px solid rgba(15, 23, 42, 0.15);
+  margin-top: 1.5rem;
+  color: var(--muted);
+}
+.site-footer .container { padding: 0.75rem 1rem; }
+
+/* ===== Utility ===== */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+
+
+
+/* ===== Lightbox modal (click-to-enlarge on post page) ===== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75); /* dark translucent backdrop */
+  display: none;                       /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+.lightbox.open { display: flex; }
+
+#lightbox-img {
+  max-width: 90vw;       /* fit within viewport width */
+  max-height: 80vh;      /* fit within viewport height */
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #fff;
+}
+
+/* Lightbox controls */
+.lightbox-close,
+.lightbox-prev,
+.lightbox-next {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  border: none;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.lightbox-close { top: 16px; right: 16px; }
+.lightbox-prev  { left: 24px; top: 50%; transform: translateY(-50%); }
+.lightbox-next  { right: 24px; top: 50%; transform: translateY(-50%); }
+
+.lightbox-close:hover,
+.lightbox-prev:hover,
+.lightbox-next:hover { background: #ffffff; }
+
+/* Buttons wrapping thumbnails in the post page gallery */
+.gallery-item {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.gallery-item:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+

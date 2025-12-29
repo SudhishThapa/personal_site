@@ -1,0 +1,50 @@
+
+{% extends 'base.html' %}
+
+{% block title %}{{ section['name'] }} · Sudhish Hub{% endblock %}
+
+{% block content %}
+<h1>{{ section['name'] }}</h1>
+
+<div class="posts">
+  {% if posts %}
+    {% for p in posts %}
+      <article class="post">
+        <h2>
+          <a href="{{ url_for('post_view', post_id=p['id']) }}">{{ p['title'] }}</a>
+        </h2>
+
+        {# ---- Option B: mini gallery preview (up to 3 thumbnails) ---- #}
+        {% if p['image_paths'] and p['image_paths']|length > 0 %}
+          <div class="mini-gallery">
+            {% for img in p['image_paths'][:3] %}
+              <a href="{{ url_for('post_view', post_id=p['id']) }}" aria-label="{{ p['title'] }} — image {{ loop.index }}">
+                <img
+                  src="{{ url_for('uploaded_file', filename=img) }}"
+                  alt="{{ p['title'] }} — image {{ loop.index }}"
+                  class="mini-thumb"
+                  loading="lazy"
+                >
+              </a>
+            {% endfor %}
+          </div>
+        {% elif p['image_path'] %}
+          <a href="{{ url_for('post_view', post_id=p['id']) }}" aria-label="{{ p['title'] }}">
+            <img
+              src="{{ url_for('uploaded_file', filename=p['image_path']) }}"
+              alt="{{ p['title'] }}"
+              class="post-thumb"
+              loading="lazy"
+            >
+          </a>
+        {% endif %}
+
+        <p class="post-body">{{ p['body']|truncate(240) }}</p>
+        <p class="meta">{{ p['created_at'][:10] }}</p>
+      </article>
+    {% endfor %}
+  {% else %}
+    <p><em>No posts yet in this section.</em></p>
+  {% endif %}
+</div>
+{% endblock %}

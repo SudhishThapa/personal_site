@@ -1,0 +1,105 @@
+
+{% extends 'base.html' %}
+
+{% block title %}New Post{% endblock %}
+
+{% block content %}
+<h1>New Post</h1>
+
+<form method="post" enctype="multipart/form-data" class="form">
+
+  <label>Section
+    <select name="section_id" required>
+      {% for s in sections %}
+        <option value="{{ s['id'] }}">{{ s['name'] }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Title
+    <input type="text" name="title" required>
+  </label>
+
+  <label>Body
+    <textarea name="body" rows="10" required placeholder="Write your content here..."></textarea>
+  </label>
+
+  <!-- One input that lets you select multiple images -->
+  <label>Images (optional)
+    <input
+      type="file"
+      name="images"
+      multiple
+      accept=".png,.jpg,.jpeg,.gif,.webp"
+      id="images-input"
+    >
+    <small id="images-help" class="help-text">You can select multiple files. Max 15 images.</small>
+    <div id="images-list" class="file-list" aria-live="polite"></div>
+  </label>
+
+  <button type="submit" class="btn">Create</button>
+</form>
+
+<style>
+  /* Lightweight styles that match a typical minimal form */
+  .form label {
+    display: block;
+    margin: 12px 0;
+  }
+  .form input[type="text"],
+  .form select,
+  .form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+  .btn {
+    display: inline-block;
+    width: 100%;
+    margin-top: 16px;
+    background: #2563eb;
+    color: #fff;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn:hover { background: #1e40af; }
+
+  .help-text { color: #6b7280; display: block; margin-top: 6px; }
+  .file-list { margin-top: 6px; font-size: 0.95rem; color: #374151; }
+  .file-pill {
+    display: inline-block;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin: 4px 6px 0 0;
+  }
+</style>
+
+<script>
+  // Show selected file names and count
+  const input = document.getElementById('images-input');
+  const list = document.getElementById('images-list');
+  const help = document.getElementById('images-help');
+
+  input.addEventListener('change', () => {
+    list.innerHTML = '';
+    const files = Array.from(input.files || []);
+    if (files.length === 0) {
+      help.textContent = 'You can select multiple files. Max 15 images.';
+      return;
+    }
+    help.textContent = `${files.length} file${files.length > 1 ? 's' : ''} selected`;
+    files.forEach(f => {
+      const pill = document.createElement('span');
+      pill.className = 'file-pill';
+      pill.textContent = f.name;
+      list.appendChild(pill);
+    });
+  });
+</script>
+{% endblock %}

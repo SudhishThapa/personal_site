@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Edit Post{% endblock %}
+{% block content %}
+  <h1>Edit Post</h1>
+  <form method=\"post\" enctype=\"multipart/form-data\" class=\"form\">
+    <label>Section
+      <select name=\"section_id\" required>
+        {% for s in sections %}
+          <option value=\"{{ s['id'] }}\" {% if s['id'] == post['section_id'] %}selected{% endif %}>{{ s['name'] }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Title
+      <input type=\"text\" name=\"title\" value=\"{{ post['title'] }}\" required>
+    </label>
+    <label>Body
+      <textarea name=\"body\" rows=\"10\" required>{{ post['body'] }}</textarea>
+    </label>
+    <p>Current image: {% if post['image_path'] %}<img src=\"{{ url_for('static', filename=post['image_path']) }}\" class=\"thumb\">{% else %}<em>None</em>{% endif %}</p>
+    <label>Replace image (optional)
+      <input type=\"file\" name=\"image\" accept=\"image/*\">
+    </label>
+    <button type=\"submit\">Save changes</button>
+  </form>
+{% endblock %}
