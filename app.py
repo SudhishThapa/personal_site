@@ -8,6 +8,10 @@ from werkzeug.utils import secure_filename
 from config import Config
 from models import db, Post, Media, TOPICS
 
+# Register Flask-Migrate
+from flask_migrate import Migrate
+migrate = Migrate()
+
 # Pretty display names for navbar and headings
 DISPLAY_NAMES = {
     "basketball": "Basketball",
@@ -29,10 +33,9 @@ def create_app():
     os.makedirs(app.instance_path, exist_ok=True)
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    # DB init
+    # DB + Migrations init
     db.init_app(app)
-    with app.app_context():
-        db.create_all()
+    migrate.init_app(app, db)  # enables `flask db ...` CLI
 
     # Inject globals to all templates
     @app.context_processor
@@ -152,7 +155,7 @@ def create_app():
 
         return render_template("admin_new_post.html")
 
-    # ---------- NEW: Edit Post ----------
+    # ---------- Edit Post ----------
     @app.route("/admin/edit/<int:post_id>", methods=["GET", "POST"])
     def admin_edit_post(post_id):
         if not is_logged_in():
@@ -188,7 +191,10 @@ def create_app():
             # Handle media deletions (checkboxes)
             delete_ids = request.form.getlist("delete_media_ids")
             for mid in delete_ids:
-                m = Media.query.filter_by(id=int(mid), post_id=post.id).first()
+                try:
+                    m = Media.query.filter_by(id=int(mid), post_id=post.id).first()
+                except ValueError:
+                    m = None
                 if m:
                     db.session.delete(m)
 
@@ -211,7 +217,7 @@ def create_app():
 
         return render_template("admin_edit_post.html", post=post)
 
-    # ---------- NEW: Delete Post ----------
+    # ---------- Delete Post ----------
     @app.route("/admin/delete/<int:post_id>", methods=["POST"])
     def admin_delete_post(post_id):
         if not is_logged_in():
@@ -225,6 +231,7 @@ def create_app():
 
     return app
 
+# Optional: keep a global app for `python app.py` local runs
 app = create_app()
 
 if __name__ == "__main__":
