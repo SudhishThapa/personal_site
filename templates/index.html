@@ -1,26 +1,26 @@
-{% extends 'base.html' %}
+
+{% extends "layout.html" %}
 {% block content %}
-  <section class=\"hero\">
-    <h1>Welcome to my learning hub</h1>
-    <p>Explore posts on Basketball, Music, Japanese, Finance, and General Learning.</p>
-  </section>
-  <section>
-    <div class=\"grid\">
-      {% for s in sections %}
-        <div class=\"card\">
-          <h3><a href=\"{{ url_for('section', slug=s['slug']) }}\">{{ s['name'] }}</a></h3>
-          <ul>
-            {% for p in latest_by_section[s['slug']] %}
-              <li>
-                <a href=\"{{ url_for('post_view', post_id=p['id']) }}\">{{ p['title'] }}</a>
-                <small> · {{ p['created_at'][:10] }}</small>
-              </li>
-            {% else %}
-              <li><em>No posts yet.</em></li>
-            {% endfor %}
-          </ul>
+<h1 class="mb-3">Latest Posts</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+  {% for p in posts %}
+    <div class="col">
+      <div class="card h-100">
+        {% set images = p.media | selectattr('kind', 'equalto', 'image') | list %}
+        {% if images %}
+          <img class="card-img-top" src="{{ images[0].url }}" alt="Cover image">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{{ url_for('post_detail', slug=p.slug) }}" class="text-decoration-none">{{ p.title }}</a>
+          </h5>
+          <p class="text-muted mb-1">{{ p.topic.title() }} • {{ p.created_at.strftime('%b %d, %Y') }}</p>
+          <p class="card-text">{{ p.content[:160] }}{% if p.content|length > 160 %}…{% endif %}</p>
         </div>
-      {% endfor %}
+      </div>
     </div>
-  </section>
+  {% else %}
+    <p>No posts yet—login and click “+ New Post” to add your first one.</p>
+  {% endfor %}
+</div>
 {% endblock %}

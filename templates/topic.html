@@ -1,0 +1,23 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="mb-3">{{ display_names[topic] }}</h1>
+
+{% if posts and posts|length > 0 %}
+  <div class="list-group">
+    {% for p in posts %}
+      <a class="list-group-item list-group-item-action" href="{{ url_for('post_detail', slug=p.slug) }}">
+        <div class="d-flex justify-content-between">
+          <h5 class="mb-1">{{ p.title }}</h5>
+          <small class="text-muted">{{ p.created_at.strftime('%b %d, %Y') }}</small>
+        </div>
+        <p class="mb-1">
+          {{ p.content[:220] }}{% if p.content|length > 220 %}…{% endif %}
+        </p>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No posts yet in {{ display_names[topic] }}.</p>
+{% endif %}
+{% endblock %}

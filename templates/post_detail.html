@@ -1,0 +1,48 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<article>
+  <div class="d-flex align-items-center justify-content-between">
+    <div>
+      <h1 class="mb-1">{{ post.title }}</h1>
+      <p class="text-muted mb-0">
+        {{ display_names[post.topic] }} • {{ post.created_at.strftime('%b %d, %Y') }}
+      </p>
+    </div>
+
+    {% if session.get('is_admin') %}
+      <div class="ms-3 d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm"
+           href="{{ url_for('admin_edit_post', post_id=post.id) }}">
+          Edit
+        </a>
+        <form method="post"
+              action="{{ url_for('admin_delete_post', post_id=post.id) }}"
+              onsubmit="return confirm('Delete this post? This cannot be undone.');">
+          <button class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="content my-4">{{ post.content | replace('\n', '<br>') | safe }}</div>
+
+  {% if post.media %}
+    <h5 class="mb-3">Gallery</h5>
+    <div class="media-grid">
+      {% for m in post.media %}
+        {% if m.kind == 'image' %}
+          <a href="{{ m.url }}" target="_blank" rel="noopener">
+            <img src="{{ m.url }}" alt="" />
+          </a>
+        {% else %}
+          <video controls preload="metadata">
+            <source src="{{ m.url }}">
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</article>
+{% endblock %}
