@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'site.db')
+DB_PATH = os.path.join(BASE_DIR, 'site.db')  # keep the SQLite file name you're using
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
@@ -25,6 +25,7 @@ def connect_db():
     return conn
 
 def init_db():
+    """Create tables if missing and seed sections when the table is empty."""
     conn = connect_db()
     cur = conn.cursor()
     cur.execute('''
@@ -58,6 +59,13 @@ def init_db():
     conn.commit()
     conn.close()
 
+def rename_section(slug: str, new_name: str):
+    """Update the visible name of a section by slug (used to change 'Japanese' -> 'Japanese Studies')."""
+    conn = connect_db()
+    conn.execute('UPDATE sections SET name=? WHERE slug=?', (new_name, slug))
+    conn.commit()
+    conn.close()
+
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -67,6 +75,12 @@ def get_sections():
     conn.close()
     return sections
 
+@app.before_first_request
+def startup_tasks():
+    # Ensure DB exists/seeded and apply our label change so the navbar shows "Japanese Studies"
+    init_db()
+    rename_section('japanese', 'Japanese Studies')
+
 @app.route('/')
 def index():
     sections = get_sections()
@@ -74,7 +88,9 @@ def index():
     latest_by_section = {}
     for s in sections:
         posts = conn.execute(
-            'SELECT id, title, body, image_path, created_at FROM posts WHERE section_id=? ORDER BY datetime(created_at) DESC LIMIT 3',
+            'SELECT id, title, body, image_path, created_at '
+            'FROM posts WHERE section_id=? '
+            'ORDER BY datetime(created_at) DESC LIMIT 3',
             (s['id'],)
         ).fetchall()
         latest_by_section[s['slug']] = posts
@@ -88,14 +104,25 @@ def section(slug):
     if not sec:
         conn.close()
         abort(404)
-    posts = conn.execute('SELECT id, title, body, image_path, created_at FROM posts WHERE section_id=? ORDER BY datetime(created_at) DESC', (sec['id'],)).fetchall()
+    posts = conn.execute(
+        'SELECT id, title, body, image_path, created_at '
+        'FROM posts WHERE section_id=? '
+        'ORDER BY datetime(created_at) DESC',
+        (sec['id'],)
+    ).fetchall()
     conn.close()
     return render_template('section.html', section=sec, posts=posts)
 
 @app.route('/post/<int:post_id>')
 def post_view(post_id):
     conn = connect_db()
-    post = conn.execute('SELECT p.id, p.title, p.body, p.image_path, p.created_at, s.name as section_name, s.slug as section_slug FROM posts p JOIN sections s ON p.section_id = s.id WHERE p.id=?', (post_id,)).fetchone()
+    post = conn.execute(
+        'SELECT p.id, p.title, p.body, p.image_path, p.created_at, '
+        's.name as section_name, s.slug as section_slug '
+        'FROM posts p JOIN sections s ON p.section_id = s.id '
+        'WHERE p.id=?',
+        (post_id,)
+    ).fetchone()
     conn.close()
     if not post:
         abort(404)
@@ -129,7 +156,11 @@ def admin():
     if not require_admin():
         return redirect(url_for('login'))
     conn = connect_db()
-    posts = conn.execute('SELECT p.id, p.title, p.created_at, s.name as section_name FROM posts p JOIN sections s ON p.section_id = s.id ORDER BY datetime(p.created_at) DESC').fetchall()
+    posts = conn.execute(
+        'SELECT p.id, p.title, p.created_at, s.name as section_name '
+        'FROM posts p JOIN sections s ON p.section_id = s.id '
+        'ORDER BY datetime(p.created_at) DESC'
+    ).fetchall()
     conn.close()
     sections = get_sections()
     return render_template('admin.html', posts=posts, sections=sections)
@@ -147,8 +178,6 @@ def admin_new():
         image_path = None
         if image and image.filename:
             if allowed_file(image.filename):
-                from datetime import datetime
-                from werkzeug.utils import secure_filename
                 filename = secure_filename(image.filename)
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 if os.path.exists(save_path):
@@ -164,8 +193,11 @@ def admin_new():
             flash('Please fill all required fields.', 'warning')
             return render_template('admin_new.html', sections=sections)
         conn = connect_db()
-        conn.execute('INSERT INTO posts(section_id, title, body, image_path, created_at) VALUES (?, ?, ?, ?, ?)',
-                     (section_id, title, body, image_path, datetime.utcnow().isoformat()))
+        conn.execute(
+            'INSERT INTO posts(section_id, title, body, image_path, created_at) '
+            'VALUES (?, ?, ?, ?, ?)',
+            (section_id, title, body, image_path, datetime.utcnow().isoformat())
+        )
         conn.commit()
         conn.close()
         flash('Post created!', 'success')
@@ -190,8 +222,6 @@ def admin_edit(post_id):
         image_path = post['image_path']
         if image and image.filename:
             if allowed_file(image.filename):
-                from datetime import datetime
-                from werkzeug.utils import secure_filename
                 filename = secure_filename(image.filename)
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 if os.path.exists(save_path):
@@ -208,8 +238,10 @@ def admin_edit(post_id):
             flash('Please fill all required fields.', 'warning')
             conn.close()
             return render_template('admin_edit.html', post=post, sections=sections)
-        conn.execute('UPDATE posts SET section_id=?, title=?, body=?, image_path=? WHERE id=?',
-                     (section_id, title, body, image_path, post_id))
+        conn.execute(
+            'UPDATE posts SET section_id=?, title=?, body=?, image_path=? WHERE id=?',
+            (section_id, title, body, image_path, post_id)
+        )
         conn.commit()
         conn.close()
         flash('Post updated!', 'success')
