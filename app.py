@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'site.db')  # keep the SQLite file name you're using
+DB_PATH = os.path.join(BASE_DIR, 'site.db')  # make sure this matches your actual DB filename
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
@@ -60,7 +60,7 @@ def init_db():
     conn.close()
 
 def rename_section(slug: str, new_name: str):
-    """Update the visible name of a section by slug (used to change 'Japanese' -> 'Japanese Studies')."""
+    """Change the visible name of a section by slug."""
     conn = connect_db()
     conn.execute('UPDATE sections SET name=? WHERE slug=?', (new_name, slug))
     conn.commit()
@@ -75,9 +75,8 @@ def get_sections():
     conn.close()
     return sections
 
-@app.before_first_request
-def startup_tasks():
-    # Ensure DB exists/seeded and apply our label change so the navbar shows "Japanese Studies"
+# ✅ Flask 3.x-safe startup code: run during app creation, not via before_first_request
+with app.app_context():
     init_db()
     rename_section('japanese', 'Japanese Studies')
 
@@ -265,5 +264,6 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
+    # Local dev: still OK
     init_db()
     app.run(debug=True)
