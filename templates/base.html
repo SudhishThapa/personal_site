@@ -5,24 +5,34 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-  <!-- Page title (fallback/default) -->
-  <title>{% block title %}Sudhish Thapa Learning Journal{% endblock %}</title>
+  <!-- Title block: safe for both post and section pages -->
+  <title>
+    {% block title %}
+      {% if post is defined %}
+        {{ post['title'] }} · {{ post['section_name'] }}
+      {% elif section is defined %}
+        {{ section['name'] }} · Sudhish Hub
+      {% else %}
+        Sudhish Hub
+      {% endif %}
+    {% endblock %}
+  </title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 </head>
 <body>
 
 <header class="site-header">
   <div class="container">
-    <!-- Brand -->
-    <a class="brand" href="{{ url_for('index') }}">Sudhish Thapa Learning Journal</a>
+    <a class="brand" href="{{ url_for('index') }}">Sudhish Hub</a>
 
-    <!-- Navbar -->
+    <!-- Static navbar: doesn't depend on 'sections' being passed -->
     <nav class="nav">
-      {% for s in (sections if sections is defined else []) %}
-        <a href="{{ url_for('section', slug=s['slug']) }}">{{ s['name'] }}</a>
-      {% endfor %}
+      <a href="{{ url_for('section', slug='basketball') }}">Basketball</a>
+      <a href="{{ url_for('section', slug='finance') }}">Finance</a>
+      <a href="{{ url_for('section', slug='general-learning') }}">General Learning</a>
+      <a href="{{ url_for('section', slug='japanese') }}">Japanese</a>
+      <a href="{{ url_for('section', slug='music') }}">Music</a>
 
       <span class="spacer"></span>
 
@@ -37,7 +47,7 @@
 </header>
 
 <main class="container">
-  <!-- Flash messages -->
+  {# Flash messages #}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <ul class="flashes">
